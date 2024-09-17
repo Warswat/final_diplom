@@ -1,5 +1,7 @@
 from asyncio import timeout
 from distutils.util import strtobool
+
+from django_rest_passwordreset.models import ResetPasswordToken
 from rest_framework.request import Request
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
@@ -15,13 +17,24 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
-from tasks import update_partner
+from tasks import update_partner, send_mail
+from django_rest_passwordreset.views import ResetPasswordRequestToken, generate_token_for_email
 
-from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
+from backend.models import User, Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer, AllProductsSerializer
 from backend.signals import new_user_registered, new_order
+
+class MyResetPassword(ResetPasswordRequestToken):
+    def post(self,request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        token = ResetPasswordToken.objects.get(user=User.objects.get(email=request.data['email']))
+        if response.status_code == 200:
+            send_mail.delay(token.user.username, token.key,
+                            token.user.email)
+        return JsonResponse({'Status': True})
+
 
 
 class RegisterAccount(APIView):
