@@ -300,6 +300,7 @@ class ConfirmEmailToken(models.Model):
     def save(self, *args, **kwargs):
         if not self.key:
             self.key = self.generate_key()
+
         return super(ConfirmEmailToken, self).save(*args, **kwargs)
 
     def __str__(self):

@@ -17,14 +17,14 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
-from tasks import update_partner, send_mail
+from tasks import update_partner, send_mail, send_confirm_mail, send_new_order_mail
 from django_rest_passwordreset.views import ResetPasswordRequestToken, generate_token_for_email
 
 from backend.models import User, Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer, AllProductsSerializer
-from backend.signals import new_user_registered, new_order
+
 
 class MyResetPassword(ResetPasswordRequestToken):
     def post(self,request, *args, **kwargs):
@@ -63,6 +63,9 @@ class RegisterAccount(APIView):
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
+                    if not user.is_active:
+                        token, _ = ConfirmEmailToken.objects.get_or_create(user_id=user.pk)
+                        send_confirm_mail.delay(user.username, token.key, user.email)
                     return JsonResponse({'Status': True})
                 else:
                     return JsonResponse({'Status': False, 'Errors': user_serializer.errors})
@@ -692,10 +695,12 @@ class OrderView(APIView):
                - JsonResponse: The response indicating the status of the operation and any errors.
                """
         if not request.user.is_authenticated:
+            print(request.user)
             return JsonResponse({'Status': False, 'Error': 'Log in required'}, status=403)
 
         if {'id', 'contact'}.issubset(request.data):
             if request.data['id'].isdigit():
+                print('tut vse')
                 try:
                     is_updated = Order.objects.filter(
                         user_id=request.user.id, id=request.data['id']).update(
@@ -706,7 +711,9 @@ class OrderView(APIView):
                     return JsonResponse({'Status': False, 'Errors': 'Неправильно указаны аргументы'})
                 else:
                     if is_updated:
-                        new_order.send(sender=self.__class__, user_id=request.user.id)
+                        user_mail = User.objects.get(id=request.user.id).email
+                        send_new_order_mail.delay(user_mail)
+                        # new_order.send(sender=self.__class__, user_id=request.user.id)
                         return JsonResponse({'Status': True})
 
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})

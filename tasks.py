@@ -58,3 +58,33 @@ def send_mail(user,key,email):
     )
     msg.send()
     pass
+
+@app.task()
+def send_confirm_mail(user,key,email):
+    msg = EmailMultiAlternatives(
+        # title:
+        f"Подтверждение почты для {user}",
+        # message:
+        key,
+        # from:
+        settings.EMAIL_HOST_USER,
+        # to:
+        [email]
+    )
+    msg.send()
+    pass
+
+@app.task()
+def send_new_order_mail(email):
+
+    msg = EmailMultiAlternatives(
+        # title:
+        f"Обновление статуса заказа",
+        # message:
+        'Заказ сформирован',
+        # from:
+        settings.EMAIL_HOST_USER,
+        # to:
+        [email]
+    )
+    msg.send()
