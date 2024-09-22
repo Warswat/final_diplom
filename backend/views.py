@@ -18,7 +18,7 @@ from rest_framework.views import APIView
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
 from tasks import update_partner, send_mail, send_confirm_mail, send_new_order_mail
-from django_rest_passwordreset.views import ResetPasswordRequestToken, generate_token_for_email
+from django_rest_passwordreset.views import ResetPasswordRequestToken, generate_token_for_email, ResetPasswordConfirm
 
 from backend.models import User, Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
@@ -35,7 +35,12 @@ class MyResetPassword(ResetPasswordRequestToken):
                             token.user.email)
         return JsonResponse({'Status': True})
 
-
+class MyResetPasswordConfirm(ResetPasswordConfirm):
+    def post(self,request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == 200:
+            print('nice')
+            return JsonResponse({'Status': True})
 
 class RegisterAccount(APIView):
     # Регистрация методом POST
@@ -332,7 +337,6 @@ class BasketView(APIView):
                             objects_created += 1
 
                     else:
-
                         return JsonResponse({'Status': False, 'Errors': serializer.errors})
 
                 return JsonResponse({'Status': True, 'Создано объектов': objects_created})
@@ -398,7 +402,6 @@ class BasketView(APIView):
 
                 return JsonResponse({'Status': True, 'Обновлено объектов': objects_updated})
         return JsonResponse({'Status': False, 'Errors': 'Не указаны все необходимые аргументы'})
-
 
 
 
@@ -700,7 +703,6 @@ class OrderView(APIView):
 
         if {'id', 'contact'}.issubset(request.data):
             if request.data['id'].isdigit():
-                print('tut vse')
                 try:
                     is_updated = Order.objects.filter(
                         user_id=request.user.id, id=request.data['id']).update(

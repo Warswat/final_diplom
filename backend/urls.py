@@ -1,9 +1,12 @@
+from audioop import reverse
+
 from django.urls import path
 from django_rest_passwordreset.views import reset_password_request_token, reset_password_confirm
 
 from backend.views import PartnerUpdate, RegisterAccount, LoginAccount, CategoryView, ShopView, ProductInfoView, \
     BasketView, \
-    AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount, ShopProducts, MyResetPassword
+    AccountDetails, ContactView, OrderView, PartnerState, PartnerOrders, ConfirmAccount, ShopProducts, MyResetPassword, \
+    MyResetPasswordConfirm
 
 app_name = 'backend'
 urlpatterns = [
@@ -17,7 +20,7 @@ urlpatterns = [
     path('user/login', LoginAccount.as_view(), name='user-login'),
     # path('user/password_reset', reset_password_request_token, name='password-reset'),
     path('user/password_reset', MyResetPassword.as_view(), name='password-reset'),
-    path('user/password_reset/confirm', reset_password_confirm, name='password-reset-confirm'),
+    path('user/password_reset/confirm', MyResetPasswordConfirm.as_view(), name='password-reset-confirm'),
     path('categories', CategoryView.as_view(), name='categories'),
     path('shops', ShopView.as_view(), name='shops'),
     path('products', ProductInfoView.as_view(), name='shops'),
