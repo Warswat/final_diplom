@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'admin_extra_buttons',
     'backend',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -156,6 +157,7 @@ REST_FRAMEWORK = {
 
         'rest_framework.authentication.TokenAuthentication',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 
 }
 
