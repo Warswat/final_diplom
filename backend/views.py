@@ -17,6 +17,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from ujson import loads as load_json
 from yaml import load as load_yaml, Loader
+
+from hawkcatcher import Hawk
+
+hawk = Hawk("eyJpbnRlZ3JhdGlvbklkIjoiOWJlYzQ1ZjctNGZlNy00NGU0LWExYmQtZTBlOGM2MThhMDY3Iiwic2VjcmV0IjoiNTE2MGFhN2UtMmQ5Ni00YzgyLWIyZmYtM2U0ODc2NWFiZjRmIn0=")
+
 from tasks import update_partner, send_mail, send_confirm_mail, send_new_order_mail
 from django_rest_passwordreset.views import ResetPasswordRequestToken, generate_token_for_email, ResetPasswordConfirm
 
@@ -25,6 +30,13 @@ from backend.models import User, Shop, Category, Product, ProductInfo, Parameter
 from backend.serializers import UserSerializer, CategorySerializer, ShopSerializer, ProductInfoSerializer, \
     OrderItemSerializer, OrderSerializer, ContactSerializer, AllProductsSerializer
 
+class TestHawk(APIView):
+    def get(self,request, *args, **kwargs):
+        hawk.send(ValueError("Error in get request"))
+        return JsonResponse({'Status': True})
+    def post(self,request, *args, **kwargs):
+        hawk.send(ValueError("Error in post request"))
+        return JsonResponse({'Status': True})
 
 class MyResetPassword(ResetPasswordRequestToken):
     def post(self,request, *args, **kwargs):
@@ -212,6 +224,7 @@ class CategoryView(ListAPIView):
     """
     Класс для просмотра категорий
     """
+
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
