@@ -5,6 +5,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_exempt
 from admin_extra_buttons.api import ExtraButtonsMixin, button, confirm_action, link, view
 from admin_extra_buttons.utils import HttpResponseRedirectToReferrer
+from imagekit.admin import AdminThumbnail
 
 from backend.models import User, Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, \
     Contact, ConfirmEmailToken
@@ -17,15 +18,17 @@ class CustomUserAdmin(UserAdmin):
     """
     model = User
 
+
     fieldsets = (
-        (None, {'fields': ('email', 'password', 'type')}),
+        (None, {'fields': ('email', 'password', 'type', 'avatar')}),
         ('Personal info', {'fields': ('first_name', 'last_name', 'company', 'position')}),
         ('Permissions', {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
         ('Important dates', {'fields': ('last_login', 'date_joined')}),
     )
-    list_display = ('email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('email', 'first_name', 'last_name', 'is_staff', 'avatar_thumbnail')
+    avatar_thumbnail = AdminThumbnail(image_field='avatar_thumbnail')
 
 
 @admin.register(Shop)
@@ -72,10 +75,10 @@ class ProductInfoAdmin(admin.ModelAdmin):
     model = ProductInfo
 
     fieldsets = (
-        (None, {'fields': ('product', 'model', 'quantity', 'price', 'price_rrc','shop','external_id')}),
+        (None, {'fields': ('product', 'model','image', 'quantity', 'price', 'price_rrc','shop','external_id')}),
     )
-    list_display = ('product', 'model', 'quantity', 'price', 'price_rrc','shop','external_id')
-    pass
+    list_display = ('product', 'model', 'quantity', 'price', 'price_rrc','shop','external_id','image_thumbnail')
+    image_thumbnail = AdminThumbnail(image_field='image_thumbnail')
 
 
 @admin.register(Parameter)

@@ -11,11 +11,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
 
 from dotenv import load_dotenv
+
 dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
-from django.conf.global_settings import AUTHENTICATION_BACKENDS, LOGIN_REDIRECT_URL
+from django.conf.global_settings import AUTHENTICATION_BACKENDS, LOGIN_REDIRECT_URL, MEDIA_ROOT, MEDIA_URL, CACHES
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,14 +26,20 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = '=hs6$#5om031nujz4staql9mbuste=!dc^6)4opsjq!vvjxzj@'
 
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.getenv('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+
+
+
 
 ALLOWED_HOSTS = ['*',
                  '0.0.0.0.',
@@ -52,11 +61,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_rest_passwordreset',
+    'cachalot',
     'admin_extra_buttons',
     'backend',
     'drf_spectacular',
     'social_django',
     'baton.autodiscover',
+    'imagekit',
+
 ]
 
 MIDDLEWARE = [
@@ -191,4 +203,9 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}

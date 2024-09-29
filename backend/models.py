@@ -4,6 +4,9 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_rest_passwordreset.tokens import get_token_generator
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
+
 
 STATE_CHOICES = (
     ('basket', 'Статус корзины'),
@@ -68,6 +71,11 @@ class User(AbstractUser):
     REQUIRED_FIELDS = []
     objects = UserManager()
     USERNAME_FIELD = 'email'
+    avatar = models.ImageField(upload_to='images', blank=True)
+    avatar_thumbnail = ImageSpecField(source='avatar',
+                                      processors=[ResizeToFill(50, 50)],
+                                      format='JPEG',
+                                      options={'quality': 40})
     email = models.EmailField(_('email address'), unique=True)
     company = models.CharField(verbose_name='Компания', max_length=40, blank=True)
     position = models.CharField(verbose_name='Должность', max_length=40, blank=True)
@@ -152,6 +160,11 @@ class Product(models.Model):
 class ProductInfo(models.Model):
     objects = models.manager.Manager()
     model = models.CharField(max_length=80, verbose_name='Модель', blank=True)
+    image = models.ImageField(upload_to='images', blank=True)
+    image_thumbnail = ImageSpecField(source='image',
+                                     processors=[ResizeToFill(50, 50)],
+                                     format='JPEG',
+                                     options={'quality': 40})
     external_id = models.PositiveIntegerField(verbose_name='Внешний ИД')
     product = models.ForeignKey(Product, verbose_name='Продукт', related_name='product_infos', blank=True,
                                 on_delete=models.CASCADE)

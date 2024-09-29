@@ -224,6 +224,7 @@ class ShopView(ListAPIView):
     serializer_class = ShopSerializer
 
 
+
 class ProductInfoView(APIView):
     """
         A class for searching products.
@@ -260,7 +261,7 @@ class ProductInfoView(APIView):
             query).select_related(
             'shop', 'product__category').prefetch_related(
             'product_parameters__parameter').distinct()
-
+        print(queryset.query)
         serializer = ProductInfoSerializer(queryset, many=True)
 
         return Response(serializer.data)

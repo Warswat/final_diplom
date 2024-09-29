@@ -16,6 +16,9 @@ Including another URLconf
 from baton.autodiscover import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+from django.contrib.staticfiles.urls import static, staticfiles_urlpatterns
+
+from netology_pd_diplom import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,3 +28,6 @@ urlpatterns = [
     path('api/docs/',SpectacularSwaggerView.as_view(),name='docs'),
     path('api/social-auth/', include('social_django.urls', namespace='social')),
 ]
+
+urlpatterns += staticfiles_urlpatterns()
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
